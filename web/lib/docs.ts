@@ -84,6 +84,7 @@ packages/
   manifest/      Zod schema for a corridor + loader
   adapter-kit/   AnchorAdapter port + conformance probes + mock adapter
   sep31/         ONE generic adapter (SEP-10 auth + SEP-12 KYC)
+  sep6/          ONE generic adapter (GET /info discovery + capabilities)
   stellar/       the only money-path package that touches the chain:
                  settlement submitter + SEP-10 signer
   router/        RouteResolver seam — open interface + static default

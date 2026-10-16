@@ -67,6 +67,9 @@ packages/
   attester/      attestation writer for the conformance registry
   sep31/         ONE generic adapter for any standards-compliant SEP-31
                  anchor (SEP-10 auth + SEP-12 KYC; crypto behind an injected signer)
+  sep6/          ONE generic adapter for any standards-compliant SEP-6
+                 anchor (GET /info discovery + capabilities; the transfer
+                 verbs land in their own issues)
   stellar/       the only package on the money path that touches the chain;
                  @stellar/stellar-sdk-backed settlement submitter + SEP-10 signer
   router/        RouteResolver seam — open interface + two resolvers (Static + Registry)

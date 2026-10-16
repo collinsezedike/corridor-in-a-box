@@ -13,6 +13,15 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once it reache
 - Suppresses banner and human logs when `--json` is supplied, streaming only the serialized JSON probe result to stdout.
 - Introduces `formatProbeResultJson` and `parseProbeArgs` in `@corridor/probe`, formatting raw bitmasks alongside decoded SEP numbers and executed/passed probe lists.
 
+### Added: SEP-6 adapter scaffold with GET /info discovery
+
+`@corridor/sep6` implements the receiving-side `AnchorAdapter` for SEP-6
+anchors. It parses `GET {transfer_server}/info` (the `withdraw` and
+`withdraw-exchange` sections), caches the result on the adapter instance, and
+derives `capabilities()` from it. The transfer verbs fail closed with
+`ANCHOR_UNAVAILABLE` until their issues land (#196, #197, #198). SEP-10 auth is
+deliberately not wired here; it waits on the shared client from #194.
+
 ### Fixed — a resumed recovery run reports its real cause to the circuit breaker
 
 After a restart, a run resumed from `recovering` or `refund_pending` used to be
