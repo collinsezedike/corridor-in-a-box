@@ -7,6 +7,10 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once it reache
 
 ## [Unreleased]
 
+### Added
+
+- `mykobo.co` joins the attester anchor list in `contracts/anchors.json`. Its `stellar.toml` advertises SEP-6, SEP-24 and SEP-31, but the host it publishes for those APIs (`stellar.mykobo.co`) does not resolve, so the SEP-10 and SEP-31 probes fail and no corridor manifest is written. The probe outcome is recorded in the file's `$comment` (#226).
+
 ### Added — `--json` flag to `pnpm probe:anchor` (#232)
 
 - Adds `--json` flag parsing to `examples/probe-anchor.ts` accepted in any argv position.
