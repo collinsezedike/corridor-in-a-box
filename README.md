@@ -224,6 +224,7 @@ difference without trusting the writer to have pruned it.
 ```bash
 pnpm probe:anchor testanchor.stellar.org   # probe a live anchor, print the facts
 pnpm registry:read                         # read the registry via @corridor/registry
+pnpm registry:read --sep 24 --passed sep10_auth   # filter; --max-age and --json too
 cd contracts && cargo test                 # 21 contract tests
 ```
 
