@@ -79,7 +79,7 @@ export interface ProbeOptions {
 const ZERO_HASH = "0".repeat(64);
 
 /** Endpoint keys in a stellar.toml, and which SEP each one implies. */
-const TOML_ENDPOINTS: ReadonlyArray<{ key: string; sep: SepNumber }> = [
+export const TOML_ENDPOINTS: ReadonlyArray<{ key: string; sep: SepNumber }> = [
   { key: "TRANSFER_SERVER", sep: 6 },
   { key: "WEB_AUTH_ENDPOINT", sep: 10 },
   { key: "KYC_SERVER", sep: 12 },

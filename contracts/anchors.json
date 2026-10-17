@@ -20,6 +20,13 @@
     "refreshes decays into a stale row the scheduled job will never touch — the",
     "registry's whole claim is that staleness is visible AND fixable, so every",
     "domain it holds belongs in this list.",
+    "BlindPay appears in the Stellar Anchor Directory for Argentina, Brazil,",
+    "Colombia, Mexico, and the United States, but the entry publishes no website",
+    "or toml_file. BlindPay's official home domain is blindpay.com; its",
+    "https://blindpay.com/.well-known/stellar.toml returned HTTP 403 on",
+    "2026-10-16, so no SEP-31 receive capability was verified and no corridor",
+    "manifest was added. This records an inconclusive probe, not a claim of",
+    "SEP-6 or SEP-24 support.",
     "",
     "mykobo.co is a real EUR anchor (MyKobo, Warsaw, Poland), listed in the Stellar",
     "Anchor Directory. Its stellar.toml advertises SEP-6, SEP-24 and SEP-31, but the",
@@ -32,6 +39,7 @@
     "cowrie.exchange",
     "stellar.org",
     "lobstr.co",
+    "blindpay.com",
     "mykobo.co"
   ]
 }
