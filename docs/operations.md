@@ -298,6 +298,31 @@ whether it reached `completed`.
 - `4`: Stack unfit (`doctor` check failed)
 - `5`: Not completed (payment failed or did not reach `completed`)
 
+### `corridor canary --dry-run` — everything up to the gate, no payment
+
+```bash
+CORRIDOR_SIGNER_SECRET=S… corridor canary <file.corridor.yaml> --amount 1.00 --dry-run
+```
+
+Runs SEP-10 auth, the SEP-38 quote, SEP-12 KYC, the SEP-31 open and every
+pre-settle gate check against the real anchor, then stops before `settling`.
+`SettlementSubmitter.submit()` is never called, so no money moves. The same
+switch is `execute(intent, corridor, deps, { dryRun: true })` in code and
+`--dry-run` on `pnpm example` / `pnpm testnet`.
+
+- A dry run that passes the gate ends in `failed` with `DRY_RUN_COMPLETE` and
+  exits `0`. Its gate results are on the `verifying` and `failed` audit entries.
+  A gate refusal ends with that check's `PRESETTLE_*` code and exits `5`, as a
+  real run would.
+- `DRY_RUN_COMPLETE` is not a lane failure: it never counts toward the circuit
+  breaker.
+- The idempotency key is spent. Use a new key for the real payment.
+- The receiving anchor is left holding an opened SEP-31 transaction that is
+  never funded. Nothing needs cleaning up on our side: the anchor expires it
+  under its own policy. Expect it to appear in the anchor's dashboard as
+  `pending_sender` until then.
+- `--dry-run` cannot be combined with `--write`: a dry run earns no proof.
+
 ## 2. Recovering a stuck payment
 
 The engine drives recovery automatically per the manifest's `recovery.rollback`
@@ -420,6 +445,10 @@ When the failure carries a `PRESETTLE_*` code, the pre-settle gate refused the
 attempt before the native payment operation was submitted. Resolve the cause,
 then retry with a new key. Never bypass a failed gate by calling the submitter
 directly.
+
+A `failed` run with `DRY_RUN_COMPLETE` is not an incident: it was started with
+`dryRun: true`, passed the gate, and stopped before settling as asked (see
+`corridor canary --dry-run` above).
 
 | Code                              | Meaning                                                             | Operator action                                                                  |
 | --------------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------- |

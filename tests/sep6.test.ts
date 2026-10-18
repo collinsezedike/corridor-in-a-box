@@ -678,6 +678,40 @@ describe("getTransaction", () => {
     expect(r.value.settled).toBe(true);
   });
 
+  it("reports a refund the anchor made, in the amount-in denomination", async () => {
+    const r = await getTx({
+      transaction: {
+        status: "refunded",
+        amount_in: "5.00",
+        amount_in_asset: "stellar:USDC:GISSUER",
+        refunds: {
+          amount_refunded: "5.00",
+          amount_fee: "0.10",
+          payments: [{ id: "abc123", id_type: "stellar", amount: "4.90", fee: "0.10" }],
+        },
+      },
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.value.terminalFailure).toBe(true);
+    expect(r.value.refunds?.payments).toHaveLength(1);
+    expect(r.value.refunds?.payments[0]?.amount).toEqual({
+      asset: "stellar:USDC:GISSUER",
+      amount: "4.90",
+    });
+  });
+
+  it("ignores a malformed refunds object without failing the poll", async () => {
+    const r = await getTx({
+      transaction: { status: "completed", refunds: { amount_refunded: 5 } },
+    });
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.value.refunds).toBeUndefined();
+      expect(r.value.settled).toBe(true);
+    }
+  });
+
   it("names the bridge asset when the anchor reports an amount without one", async () => {
     const r = await getTx({ transaction: { status: "completed", amount_in: "5.00" } });
     expect(r.ok && r.value.amountIn).toEqual({ asset: "USDC", amount: "5.00" });
@@ -825,6 +859,42 @@ describe("requestQuote", () => {
     const c = corridor(endpoints);
     const r = await new Sep6Adapter(c, { fetchImpl: fn }).requestQuote(intent, c);
     expect(!r.ok && r.error.message).toContain("does not match sell asset");
+  });
+
+  it("refuses a firm quote whose total_price x buy_amount does not match sell_amount", async () => {
+    const { fn } = fakeFetch({
+      "POST /sep38/quote": res({
+        id: "q-inconsistent",
+        price: "250",
+        total_price: "0.002", // 1250.00 x 0.002 = 2.50, but sell_amount is 5.00
+        buy_amount: "1250.00",
+        sell_amount: "5.00",
+        expires_at: new Date(Date.now() + 60_000).toISOString(),
+      }),
+    });
+    const c = corridor(endpoints);
+    const r = await new Sep6Adapter(c, { fetchImpl: fn }).requestQuote(intent, c);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.error.code).toBe("QUOTE_UNAVAILABLE");
+      expect(r.error.message).toContain("internally inconsistent");
+    }
+  });
+
+  it("accepts a firm quote whose total_price agrees with sell_amount", async () => {
+    const { fn } = fakeFetch({
+      "POST /sep38/quote": res({
+        id: "q-consistent",
+        price: "250",
+        total_price: "0.004", // 1250.00 x 0.004 = 5.00
+        buy_amount: "1250.00",
+        sell_amount: "5.00",
+        expires_at: new Date(Date.now() + 60_000).toISOString(),
+      }),
+    });
+    const c = corridor(endpoints);
+    const r = await new Sep6Adapter(c, { fetchImpl: fn }).requestQuote(intent, c);
+    expect(r.ok).toBe(true);
   });
 
   it("treats a 5xx quote failure as retryable", async () => {

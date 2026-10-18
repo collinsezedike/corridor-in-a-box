@@ -66,6 +66,16 @@
     "(vibrant.cash returns marketing HTML without anchor SEPs). Vibrant is a wallet,",
     "not an anchor, and serves no SEP-31 receive endpoint; no manifest is written.",
     "",
+    "testanchor.stellar.org is the SDF test anchor. It currently advertises SEP-31",
+    "and returns an empty receive list, so it attests as NOT serving SEP-31 — a",
+    "useful demonstration that the registry reports capability rather than claims.",
+    "stellar.moneygram.com, mercuryo.io, lightnet.io, owlting.com, arf.one and",
+    "stellar-sep-24.banxa.com were added for the ng-cn RMB off-ramp research (#230):",
+    "they are the Stellar Anchor Directory entries listing China, Hong Kong or",
+    "Singapore that publish a stellar.toml or claim a SEP. None advertises SEP-31",
+    "or a CNY/CNH/HKD asset; see corridors/ng-cn.corridor.yaml for the probe results",
+    "of 2026-10-18. Their countries are the directory's listing, not attested facts.",
+    "",
     "Each entry in `anchors` records curator-declared context (name, ISO 3166-1",
     "alpha-2 countries, kind, directory/manifest source, and date added). Countries",
     "and `kind` are curator-declared metadata, NOT attested facts; `domains` mirrors",
@@ -81,7 +91,13 @@
     "mykobo.co",
     "connect.clickpesa.com",
     "coins.ph",
-    "vibrantapp.com"
+    "vibrantapp.com",
+    "stellar.moneygram.com",
+    "mercuryo.io",
+    "lightnet.io",
+    "owlting.com",
+    "arf.one",
+    "stellar-sep-24.banxa.com"
   ],
   "anchors": [
     {
@@ -163,6 +179,54 @@
       "kind": "other",
       "source": "https://vibrantapp.com",
       "added": "2026-10-17"
+    },
+    {
+      "domain": "stellar.moneygram.com",
+      "name": "MoneyGram Ramps",
+      "countries": ["HK", "SG"],
+      "kind": "other",
+      "source": "https://anchors.stellar.org/?search=MoneyGram",
+      "added": "2026-10-18"
+    },
+    {
+      "domain": "mercuryo.io",
+      "name": "Mercuryo",
+      "countries": ["CN", "SG"],
+      "kind": "other",
+      "source": "https://anchors.stellar.org/?search=Mercuryo",
+      "added": "2026-10-18"
+    },
+    {
+      "domain": "lightnet.io",
+      "name": "Lightnet",
+      "countries": ["CN", "SG"],
+      "kind": "other",
+      "source": "https://anchors.stellar.org/?search=Lightnet",
+      "added": "2026-10-18"
+    },
+    {
+      "domain": "owlting.com",
+      "name": "OwlPay",
+      "countries": ["CN", "HK", "SG"],
+      "kind": "other",
+      "source": "https://anchors.stellar.org/?search=OwlPay",
+      "added": "2026-10-18"
+    },
+    {
+      "domain": "arf.one",
+      "name": "Arf",
+      "countries": ["CN", "SG"],
+      "kind": "other",
+      "source": "https://anchors.stellar.org/?search=Arf",
+      "added": "2026-10-18"
+    },
+    {
+      "domain": "stellar-sep-24.banxa.com",
+      "name": "Banxa",
+      "countries": ["HK"],
+      "kind": "other",
+      "source": "https://anchors.stellar.org/?search=Banxa",
+      "added": "2026-10-18"
     }
   ]
 }

@@ -44,6 +44,8 @@ pnpm test               # vitest: engine, manifest, money, sep31, stellar, …
 pnpm example            # run a payment end-to-end (mocked anchor + settle)
 pnpm cli plan corridors/reference.corridor.yaml   # offline pre-flight / liveness check
 CORRIDOR_SIGNER_SECRET=S… pnpm cli canary corridors/reference.corridor.yaml \
+  --amount 1.00 --dry-run                          # real anchor up to the pre-settle gate, no payment
+CORRIDOR_SIGNER_SECRET=S… pnpm cli canary corridors/reference.corridor.yaml \
   --amount 1.00 --write                            # MOVES MONEY: canary + proof
 ```
 

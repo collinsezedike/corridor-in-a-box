@@ -84,6 +84,8 @@ rejects and the stored row stays non-terminal — only gate throws are fail-clos
 
 ### Added
 
+- Engine dry-run mode (#298). `execute(intent, corridor, deps, { dryRun: true })` runs quote, comply, open and the pre-settle gate against the real anchor, then stops before `settling` without calling `SettlementSubmitter.submit()` or `findExisting()`. A run that passes the gate is persisted as `failed` with the new `DRY_RUN_COMPLETE` code. Its gate results go on the audit trail and in the error's `cause` (`DryRunReport`). The code is breaker-neutral and maps to HTTP 409. Exposed as `corridor canary --dry-run` (exit `0`; rejected with `--write`) and `--dry-run` on `pnpm example` / `pnpm testnet`. The opened SEP-31 transaction is never funded and expires on the anchor's side.
+- Dashboard freshness (#296). `fetchAttestations()` returns `readAt` and the RPC's `latestLedger`. The Attested anchors section shows "Read from <network> registry at <time> · ledger N · <age> ago · refreshes every 1 hour", with the age worked out in the browser and a warning style once it passes the revalidate window. Per-anchor staleness shows an approximate duration (~5 s/ledger) next to the ledger count.
 - `mykobo.co` joins the attester anchor list in `contracts/anchors.json`. Its `stellar.toml` advertises SEP-6, SEP-24 and SEP-31, but the host it publishes for those APIs (`stellar.mykobo.co`) does not resolve, so the SEP-10 and SEP-31 probes fail and no corridor manifest is written. The probe outcome is recorded in the file's `$comment` (#226).
 
 ### Added — QuoteProvider abstraction: SEP-38, adapter-native, and external pricing (#189)

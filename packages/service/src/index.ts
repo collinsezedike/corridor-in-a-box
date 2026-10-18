@@ -164,6 +164,9 @@ const STATUS_BY_CODE: Record<CorridorErrorCode, number> = {
   // the caller can resolve.
   CORRIDOR_HALTED: 503,
   ENGINE_MISCONFIGURED: 500,
+  // The HTTP API never starts a dry run, so this only keeps the table total.
+  // 409, not 2xx: no payment was made, and the key is spent.
+  DRY_RUN_COMPLETE: 409,
 };
 
 /** Token-bucket rate limiter, keyed per client. In-memory; swap for Redis at scale. */

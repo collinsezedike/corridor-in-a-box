@@ -34,14 +34,16 @@ import {
   type Outcome,
   type PaymentIntent,
 } from "@corridor/types";
-import type {
-  AdapterCapabilities,
-  AnchorAdapter,
-  KycResult,
-  OpenTransaction,
-  Quote,
-  RefundRef,
-  TransactionStatus,
+import {
+  parseRefunds,
+  totalPriceProblem,
+  type AdapterCapabilities,
+  type AnchorAdapter,
+  type KycResult,
+  type OpenTransaction,
+  type Quote,
+  type RefundRef,
+  type TransactionStatus,
 } from "@corridor/adapter-kit";
 
 type FetchLike = typeof fetch;
@@ -588,6 +590,7 @@ export class Sep6Adapter implements AnchorAdapter {
             expires_at?: unknown;
             sell_amount?: unknown;
             buy_amount?: unknown;
+            total_price?: unknown;
             fee?: { total?: unknown; asset?: unknown };
           }
         | undefined;
@@ -606,6 +609,16 @@ export class Sep6Adapter implements AnchorAdapter {
       // same rule @corridor/sep31 applies: the firm quote binds to the anchor's
       // number, and settling ours instead means the payout will not match.
       const sellAmount = amountString(j?.sell_amount) ?? intent.sourceAmount.amount;
+
+      // SEP-38: total_price (fees included) x buy_amount must land on sell_amount. Same
+      // check, same helper, as the SEP-31 firm path.
+      const inconsistent = totalPriceProblem({
+        quoteId: id,
+        totalPrice: amountString(j?.total_price),
+        buyAmount,
+        sellAmount,
+      });
+      if (inconsistent) return fail("QUOTE_UNAVAILABLE", `${this.name}: ${inconsistent}`);
 
       let fee: Money | undefined;
       if (j?.fee) {
@@ -953,6 +966,7 @@ export class Sep6Adapter implements AnchorAdapter {
             withdraw_anchor_account?: unknown;
             withdraw_memo?: unknown;
             withdraw_memo_type?: unknown;
+            refunds?: unknown;
           }
         | undefined;
       if (!tx || typeof tx.status !== "string") {
@@ -964,6 +978,14 @@ export class Sep6Adapter implements AnchorAdapter {
       }
       const mapped = mapSep6Status(tx.status);
       const asset = nonEmptyString(tx.amount_in_asset) ?? this.settlementAsset;
+      // SEP-6 reports a refund on the same record; parsed by the helper SEP-31 uses, and
+      // kept apart from the classification above so a malformed `refunds` object can
+      // never turn a readable status into an error.
+      const refunds = parseRefunds(
+        tx.refunds,
+        asset,
+        typeof tx.amount_in === "string" ? tx.amount_in : undefined,
+      );
       const amountIn = amountString(tx.amount_in);
       const depositAddress = nonEmptyString(tx.withdraw_anchor_account);
       const memo = nonEmptyString(tx.withdraw_memo);
@@ -971,6 +993,7 @@ export class Sep6Adapter implements AnchorAdapter {
 
       return ok<TransactionStatus>({
         ...mapped,
+        ...(refunds ? { refunds } : {}),
         ...(amountIn !== undefined ? { amountIn: { asset, amount: amountIn } } : {}),
         ...(depositAddress !== undefined ? { depositAddress } : {}),
         ...(memo !== undefined ? { memo } : {}),
